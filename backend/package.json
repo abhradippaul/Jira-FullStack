@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc-watch --onSuccess \"node ./dist/index.js\"",
+    "dev:full": "concurrently \"npm run dev\" \"npx drizzle-kit studio\"",
+    "build": "tsc",
+    "drizzle": "npx drizzle-kit studio",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "Abhradip Paul",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.5.0",
+    "@types/pg": "^8.15.5",
+    "concurrently": "^9.2.1",
+    "drizzle-kit": "^0.31.4",
+    "nodemon": "^3.1.10",
+    "tsc-watch": "^7.1.1",
+    "typescript": "^5.9.2"
+  }
+}
