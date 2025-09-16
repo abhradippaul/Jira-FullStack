@@ -15,6 +15,10 @@ app.get("/", async (req, res) => {
   res.json({ msg: "hello" });
 });
 
+app.get("/test", async (req, res) => {
+  res.status(200).json({ msg: "This is test page" });
+});
+
 app.listen(PORT, () => {
   console.log("Server connected successfully on port no", PORT);
 });
