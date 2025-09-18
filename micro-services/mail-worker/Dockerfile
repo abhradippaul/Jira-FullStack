@@ -17,6 +17,5 @@ COPY --from=builder /app/package-lock.json ./package-lock.json
 RUN npm install --only=production
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 8000
 
 CMD [ "npm" , "start" ]

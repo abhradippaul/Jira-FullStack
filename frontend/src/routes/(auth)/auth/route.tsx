@@ -1,9 +1,14 @@
 "use server";
 
 import { Button } from "@/components/ui/button";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(auth)/auth")({
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/auth") {
+      throw redirect({ to: "/auth/sign-in" });
+    }
+  },
   component: RouteComponent,
 });
 

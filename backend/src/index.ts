@@ -3,6 +3,7 @@ dotenv.config();
 
 import cors from "cors";
 import express, { urlencoded } from "express";
+import { sendMessage } from "./aws/sqs.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -17,6 +18,12 @@ app.get("/", async (req, res) => {
 
 app.get("/test", async (req, res) => {
   res.status(200).json({ msg: "This is test page" });
+});
+
+app.get("/send-mail", async (req, res) => {
+  const response = await sendMessage("This is my message", "Abhradip Paul");
+  console.log(response);
+  res.status(200).json({ msg: "Mail send to sqs successfully" });
 });
 
 app.listen(PORT, () => {
