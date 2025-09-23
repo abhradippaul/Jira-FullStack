@@ -1,3 +1,4 @@
+import SignUpCard from "@/features/auth/components/sign-up-card";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(auth)/auth/sign-up/")({
@@ -5,5 +6,5 @@ export const Route = createFileRoute("/(auth)/auth/sign-up/")({
 });
 
 function RouteComponent() {
-  return <div>Sign up page</div>;
+  return <SignUpCard />;
 }

@@ -17,16 +17,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { signinFormSchema } from "@/lib/zod";
+import { signupFormSchema } from "@/lib/zod";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useSignIn } from "@/custom-hooks/auth/use-userauth";
+import { useSignUp } from "@/custom-hooks/auth/use-userauth";
 
-function SignInCard() {
+function SignUpCard() {
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof signinFormSchema>>({
-    resolver: zodResolver(signinFormSchema),
+  const form = useForm<z.infer<typeof signupFormSchema>>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
@@ -36,8 +37,9 @@ function SignInCard() {
     navigate({ to: "/" });
   };
 
-  const { mutate } = useSignIn(onSuccess);
-  function onSubmit(values: z.infer<typeof signinFormSchema>) {
+  const { mutate } = useSignUp(onSuccess);
+  function onSubmit(values: z.infer<typeof signupFormSchema>) {
+    console.log(values);
     mutate(values);
   }
 
@@ -52,6 +54,19 @@ function SignInCard() {
       <CardContent className="p-7">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -83,7 +98,7 @@ function SignInCard() {
               )}
             />
             <Button disabled={false} size="lg" className="w-full">
-              Signin
+              Signup
             </Button>
           </form>
         </Form>
@@ -114,13 +129,13 @@ function SignInCard() {
         <DottedSeparator />
       </div>
       <CardContent className="p-7 flex items-center justify-center">
-        <p>Don't have an account?</p>
-        <Link to="/auth/sign-up">
-          <span className="text-blue-700">Sign Up</span>
+        <p>Already have an account?</p>
+        <Link to="/auth/sign-in">
+          <span className="text-blue-700">Sign In</span>
         </Link>
       </CardContent>
     </Card>
   );
 }
 
-export default SignInCard;
+export default SignUpCard;

@@ -5,6 +5,4 @@ import * as schema from "./schema.js";
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
-const db = drizzle({ client: pool, schema });
-
-const result = await db.execute("select 1");
+export const db = drizzle({ client: pool, schema });

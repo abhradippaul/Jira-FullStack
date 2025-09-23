@@ -1,7 +1,13 @@
-"use server";
+"use client";
 
 import { Button } from "@/components/ui/button";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+  useLocation,
+} from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(auth)/auth")({
   beforeLoad: ({ location }) => {
@@ -13,14 +19,20 @@ export const Route = createFileRoute("/(auth)/auth")({
 });
 
 function RouteComponent() {
+  const { pathname } = useLocation();
+  const linkPath = pathname.includes("sign-up")
+    ? "/auth/sign-in"
+    : "/auth/sign-up";
   return (
     <main className="bg-neutral-100 min-h-screen">
       <div className="mx-auto max-w-screen p-4">
         <nav className="flex justify-between items-center">
           <img src="/logo.svg" className="w-[152px] h-[56px]" alt="Logo" />
-          <Button variant="secondary" className="cursor-pointer">
-            Sign Up
-          </Button>
+          <Link to={linkPath}>
+            <Button variant="secondary" className="cursor-pointer">
+              {pathname.includes("sign-up") ? "Sign In" : "Sign Up"}
+            </Button>
+          </Link>
         </nav>
         <div className="flex flex-col items-center justify-center pt-4 md:pt-14">
           <Outlet />
