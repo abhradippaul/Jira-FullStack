@@ -1,5 +1,5 @@
 import type { signupFormSchema } from "@/lib/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 import type z from "zod";
@@ -32,7 +32,9 @@ export function useSignUp(onSuccess: () => void) {
 export function useSignIn(onSuccess: () => void) {
   return useMutation({
     mutationFn: (body: UserSignIn) => {
-      return axios.post(`${BACKEND_URL}/auth/signin`, body);
+      return axios.post(`${BACKEND_URL}/auth/signin`, body, {
+        withCredentials: true,
+      });
     },
     onSuccess: () => {
       toast.success("Account login successfully");
@@ -45,5 +47,38 @@ export function useSignIn(onSuccess: () => void) {
         toast.error("Account login unsuccessfully");
       }
     },
+  });
+}
+
+export function useSignOut(onSuccess: () => void) {
+  return useMutation({
+    mutationFn: () => {
+      return axios.delete(`${BACKEND_URL}/auth/signout`, {
+        withCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      document.cookie = "isAuthenticated=";
+      onSuccess();
+      toast.success("Account logout successfully");
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data.msg);
+      } else {
+        toast.error("Account logout unsuccessfully");
+      }
+    },
+  });
+}
+
+export function useGetUser() {
+  return useQuery({
+    queryFn: () => {
+      return axios.get(`${BACKEND_URL}/auth/current-user`, {
+        withCredentials: true,
+      });
+    },
+    queryKey: ["user_info"],
   });
 }

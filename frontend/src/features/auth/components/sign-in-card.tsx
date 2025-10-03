@@ -33,6 +33,9 @@ function SignInCard() {
   });
 
   const onSuccess = () => {
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 1);
+    document.cookie = `isAuthenticated=true; expires=${expirationDate.toUTCString()}; path=/`;
     navigate({ to: "/" });
   };
 

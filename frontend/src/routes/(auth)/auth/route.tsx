@@ -12,6 +12,12 @@ import {
 export const Route = createFileRoute("/(auth)/auth")({
   beforeLoad: ({ location }) => {
     if (location.pathname === "/auth") {
+      const isCookieExists = document.cookie
+        .split(";")
+        .filter((c) => c.includes("isAuthenticated"));
+      if (isCookieExists) {
+        throw redirect({ to: "/" });
+      }
       throw redirect({ to: "/auth/sign-in" });
     }
   },

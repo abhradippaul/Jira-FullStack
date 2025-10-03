@@ -4,6 +4,7 @@ import { db } from "../db/index.js";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import type { UserSignin, UserSignup } from "../utils/types.js";
+import { createJWTToken, verifyJWTToken } from "../utils/jwt.js";
 
 export async function signupUser(req: Request, res: Response) {
   try {
@@ -73,8 +74,68 @@ export async function signinUser(req: Request, res: Response) {
       });
     }
 
-    return res.status(201).json({
-      msg: "User created successfully",
+    const accessToken = createJWTToken(isUserExist[0]?.id || "");
+
+    res.cookie("auth", accessToken, {
+      maxAge: 9000000, // 150 minutes
+      httpOnly: true,
+      // secure: true, // Only send over HTTPS
+      // sameSite: "none",
+      // path: "/*",
+    });
+
+    return res.status(200).json({
+      msg: "User signin successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      msg: "Some thing went wrong",
+      error: err,
+    });
+  }
+}
+
+export async function signoutUser(req: Request, res: Response) {
+  try {
+    return res.status(200).clearCookie("auth").json({
+      msg: "User signout successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      msg: "Some thing went wrong",
+      error: err,
+    });
+  }
+}
+
+export async function getCurrentUser(req: Request, res: Response) {
+  try {
+    const cookie = req.cookies;
+    if (!cookie?.auth) {
+      return res.status(404).json({
+        msg: "Cookie not found",
+      });
+    }
+    const verifiedJWT = verifyJWTToken(cookie.auth);
+    if (!verifiedJWT?.id) {
+      return res.status(404).json({
+        msg: "Cookie is unauthorized",
+      });
+    }
+    const isUserExists = await db
+      .select({ id: users.id, name: users.name })
+      .from(users)
+      .where(eq(users.id, verifiedJWT.id));
+    if (!isUserExists.length) {
+      return res.status(404).json({
+        msg: "User does not exist",
+      });
+    }
+    return res.status(200).json({
+      msg: "Get current user successfully",
+      user: isUserExists[0],
     });
   } catch (err) {
     console.log(err);
