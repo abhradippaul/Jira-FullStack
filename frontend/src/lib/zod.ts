@@ -20,3 +20,10 @@ export const signinFormSchema = z.object({
     message: "Password required",
   }),
 });
+
+export const workspaceFormSchema = z.object({
+  name: z.string().min(1, {
+    message: "Name length is too low",
+  }),
+  image_url: z.string(),
+});

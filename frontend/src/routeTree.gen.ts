@@ -10,8 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as dashboardRouteRouteImport } from './routes/(dashboard)/route'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as dashboardIndexRouteImport } from './routes/(dashboard)/index'
 import { Route as authAuthRouteRouteImport } from './routes/(auth)/auth/route'
 import { Route as authAuthSignUpIndexRouteImport } from './routes/(auth)/auth/sign-up/index'
 import { Route as authAuthSignInIndexRouteImport } from './routes/(auth)/auth/sign-in/index'
@@ -21,15 +22,19 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const dashboardRouteRoute = dashboardRouteRouteImport.update({
+  id: '/(dashboard)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PostsIndexRoute = PostsIndexRouteImport.update({
   id: '/posts/',
   path: '/posts/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const dashboardIndexRoute = dashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => dashboardRouteRoute,
 } as any)
 const authAuthRouteRoute = authAuthRouteRouteImport.update({
   id: '/(auth)/auth',
@@ -48,7 +53,7 @@ const authAuthSignInIndexRoute = authAuthSignInIndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof dashboardIndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof authAuthRouteRouteWithChildren
   '/posts': typeof PostsIndexRoute
@@ -56,18 +61,19 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof authAuthSignUpIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof authAuthRouteRouteWithChildren
+  '/': typeof dashboardIndexRoute
   '/posts': typeof PostsIndexRoute
   '/auth/sign-in': typeof authAuthSignInIndexRoute
   '/auth/sign-up': typeof authAuthSignUpIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/(dashboard)': typeof dashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/(auth)/auth': typeof authAuthRouteRouteWithChildren
+  '/(dashboard)/': typeof dashboardIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/(auth)/auth/sign-in/': typeof authAuthSignInIndexRoute
   '/(auth)/auth/sign-up/': typeof authAuthSignUpIndexRoute
@@ -82,19 +88,20 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth' | '/posts' | '/auth/sign-in' | '/auth/sign-up'
+  to: '/about' | '/auth' | '/' | '/posts' | '/auth/sign-in' | '/auth/sign-up'
   id:
     | '__root__'
-    | '/'
+    | '/(dashboard)'
     | '/about'
     | '/(auth)/auth'
+    | '/(dashboard)/'
     | '/posts/'
     | '/(auth)/auth/sign-in/'
     | '/(auth)/auth/sign-up/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  dashboardRouteRoute: typeof dashboardRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   authAuthRouteRoute: typeof authAuthRouteRouteWithChildren
   PostsIndexRoute: typeof PostsIndexRoute
@@ -109,11 +116,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/(dashboard)': {
+      id: '/(dashboard)'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof dashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/posts/': {
@@ -122,6 +129,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/posts'
       preLoaderRoute: typeof PostsIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(dashboard)/': {
+      id: '/(dashboard)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof dashboardIndexRouteImport
+      parentRoute: typeof dashboardRouteRoute
     }
     '/(auth)/auth': {
       id: '/(auth)/auth'
@@ -147,6 +161,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface dashboardRouteRouteChildren {
+  dashboardIndexRoute: typeof dashboardIndexRoute
+}
+
+const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
+  dashboardIndexRoute: dashboardIndexRoute,
+}
+
+const dashboardRouteRouteWithChildren = dashboardRouteRoute._addFileChildren(
+  dashboardRouteRouteChildren,
+)
+
 interface authAuthRouteRouteChildren {
   authAuthSignInIndexRoute: typeof authAuthSignInIndexRoute
   authAuthSignUpIndexRoute: typeof authAuthSignUpIndexRoute
@@ -162,7 +188,7 @@ const authAuthRouteRouteWithChildren = authAuthRouteRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  dashboardRouteRoute: dashboardRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   authAuthRouteRoute: authAuthRouteRouteWithChildren,
   PostsIndexRoute: PostsIndexRoute,

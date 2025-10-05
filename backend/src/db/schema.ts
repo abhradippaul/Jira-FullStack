@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   timestamp,
@@ -24,8 +25,32 @@ export const users = pgTable(
   (t) => [uniqueIndex("clerk_id_idx").on(t.email)]
 );
 
+export const userRelations = relations(users, ({ many }) => ({
+  workspaces: many(workspaces),
+}));
+
 export const userInsertSchema = createInsertSchema(users).omit({
   id: true,
   created_at: true,
   updated_at: true,
 });
+
+export const workspaces = pgTable("workspaces", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 150 }).notNull(),
+  user_id: uuid("user_id")
+    .notNull()
+    .references(() => users.id, {
+      onDelete: "cascade",
+    }),
+  image_url: varchar("image_url", { length: 150 }),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+  updated_at: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const workspaceRelations = relations(workspaces, ({ one }) => ({
+  user: one(users, {
+    fields: [workspaces.user_id],
+    references: [users.id],
+  }),
+}));

@@ -31,7 +31,7 @@ function UserButton() {
     return null;
   }
 
-  const userInfo = data?.data as GetCurrentUserType | null;
+  const userInfo = data?.data.user as GetCurrentUserType | null;
   const avatarFallback = userInfo?.name
     ? userInfo.name.charAt(0).toUpperCase()
     : "U";

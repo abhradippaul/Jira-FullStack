@@ -4,9 +4,10 @@ dotenv.config();
 import cors from "cors";
 import express, { urlencoded } from "express";
 import cookieParser from "cookie-parser";
-import { sendMessage } from "./aws/sqs.js";
+import { sendMessage } from "./utils/aws/sqs.js";
 
 import { router as authRouter } from "./routes/auth.route.js";
+import { router as workspaceRouter } from "./routes/workspace.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/workspace", workspaceRouter);
 
 app.get("/", async (req, res) => {
   res.json({ msg: "hello" });
