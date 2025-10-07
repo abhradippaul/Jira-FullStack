@@ -1,5 +1,9 @@
-import CreateWorkspaceForm from "@/features/workspace/components/create-workspace-form";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+"use client";
+import { useGetWorkspaces } from "@/custom-hooks/workspace/use-workspace";
+import type { GetWorkspaces } from "@/lib/types";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { Loader } from "lucide-react";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/(dashboard)/")({
   beforeLoad: ({ location }) => {
@@ -22,9 +26,33 @@ export const Route = createFileRoute("/(dashboard)/")({
 });
 
 function Index() {
-  return (
-    <div>
-      <CreateWorkspaceForm />
-    </div>
-  );
+  const { data, isLoading, error } = useGetWorkspaces();
+  const router = useRouter();
+  const workspaces = data?.data.workspaces as
+    | GetWorkspaces[]
+    | null
+    | undefined;
+
+  useEffect(() => {
+    if (!isLoading && !error) {
+      if (!workspaces?.length) {
+        router.navigate({ to: "/workspaces/create" });
+      } else {
+        router.navigate({
+          to: "/workspaces/$workspaceId",
+          params: { workspaceId: workspaces[0].id },
+        });
+      }
+    }
+  }, [workspaces, router]);
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return null;
 }

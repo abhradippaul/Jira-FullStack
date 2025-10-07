@@ -1,16 +1,13 @@
 import { relations } from "drizzle-orm";
 import {
   pgTable,
+  primaryKey,
   timestamp,
   uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-} from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 
 export const users = pgTable(
   "users",
@@ -27,6 +24,7 @@ export const users = pgTable(
 
 export const userRelations = relations(users, ({ many }) => ({
   workspaces: many(workspaces),
+  workspaceMembers: many(workspaceMembers),
 }));
 
 export const userInsertSchema = createInsertSchema(users).omit({
@@ -44,13 +42,54 @@ export const workspaces = pgTable("workspaces", {
       onDelete: "cascade",
     }),
   image_url: varchar("image_url", { length: 150 }),
+  invite_code: varchar("invite_code", { length: 6 }).notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const workspaceRelations = relations(workspaces, ({ one }) => ({
+export const workspaceRelations = relations(workspaces, ({ one, many }) => ({
   user: one(users, {
     fields: [workspaces.user_id],
     references: [users.id],
   }),
+  workspaceMembers: many(workspaceMembers),
 }));
+
+export const workspaceMembers = pgTable(
+  "workspace_members",
+  {
+    user_id: uuid("user_id")
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "cascade",
+      }),
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, {
+        onDelete: "cascade",
+      }),
+    role: varchar("role", { length: 15 }).notNull().default("member"),
+    created_at: timestamp("created_at").defaultNow().notNull(),
+    updated_at: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({
+      name: "workspace_member_pk",
+      columns: [t.user_id, t.workspace_id],
+    }),
+  ]
+);
+
+export const workspaceMemberRelations = relations(
+  workspaceMembers,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [workspaceMembers.user_id],
+      references: [users.id],
+    }),
+    workspace: one(workspaces, {
+      fields: [workspaceMembers.workspace_id],
+      references: [workspaces.id],
+    }),
+  })
+);

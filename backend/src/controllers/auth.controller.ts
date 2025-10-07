@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { users } from "../db/schema.js";
+import { users, workspaceMembers } from "../db/schema.js";
 import { db } from "../db/index.js";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import type { UserSignin, UserSignup } from "../utils/types.js";
 import { createJWTToken, verifyJWTToken } from "../utils/jwt.js";
@@ -112,27 +112,31 @@ export async function signoutUser(req: Request, res: Response) {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const cookie = req.cookies;
-    if (!cookie?.auth) {
+    const { user_id } = req.body;
+
+    if (!user_id) {
       return res.status(404).json({
-        msg: "Cookie not found",
+        msg: "User id not found",
       });
     }
-    const verifiedJWT = verifyJWTToken(cookie.auth);
-    if (!verifiedJWT?.id) {
-      return res.status(404).json({
-        msg: "Cookie is unauthorized",
-      });
-    }
+
     const isUserExists = await db
-      .select({ id: users.id, name: users.name })
+      .select({
+        id: users.id,
+        name: users.name,
+        // workspaceCount: count(workspaceMembers.workspace_id),
+      })
       .from(users)
-      .where(eq(users.id, verifiedJWT.id));
+      // .leftJoin(workspaceMembers, eq(workspaceMembers.user_id, users.id))
+      .where(eq(users.id, user_id));
+    // .groupBy(users.id);
+
     if (!isUserExists.length) {
       return res.status(404).json({
         msg: "User does not exist",
       });
     }
+
     return res.status(200).json({
       msg: "Get current user successfully",
       user: isUserExists[0],

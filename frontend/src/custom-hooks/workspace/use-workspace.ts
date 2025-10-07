@@ -1,21 +1,26 @@
-import { useMutation } from "@tanstack/react-query";
+import { getQueryClient } from "@/provider/queryclient-provider";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 interface WorkspaceInsert {
   name: string;
+  image_url: string | null | undefined;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const queryClient = getQueryClient();
 
-export function useCreateWorkspace() {
+export function useCreateWorkspace(onSuccess: (res: string) => void) {
   return useMutation({
     mutationFn: (body: WorkspaceInsert) => {
       return axios.post(`${BACKEND_URL}/workspace`, body, {
         withCredentials: true,
       });
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success("Workspace created successfully");
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      onSuccess(res.data.workspace_id);
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -47,19 +52,16 @@ export function useDeleteWorkspace() {
   });
 }
 
-interface UpdateWorkspace extends WorkspaceInsert {
-  workspaceId: string;
-}
-
-export function useUpdateWorkspace() {
+export function useUpdateWorkspace(workspaceId: string) {
   return useMutation({
-    mutationFn: ({ name, workspaceId }: UpdateWorkspace) => {
-      return axios.patch(`${BACKEND_URL}/workspace/${workspaceId}`, name, {
+    mutationFn: (body: WorkspaceInsert) => {
+      return axios.patch(`${BACKEND_URL}/workspace/${workspaceId}`, body, {
         withCredentials: true,
       });
     },
     onSuccess: () => {
       toast.success("Workspace updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -71,22 +73,25 @@ export function useUpdateWorkspace() {
   });
 }
 
-export function useGetWorkspace() {
-  return useMutation({
-    mutationFn: () => {
+export function useGetWorkspaces() {
+  return useQuery({
+    queryFn: () => {
       return axios.get(`${BACKEND_URL}/workspace`, {
         withCredentials: true,
       });
     },
-    onSuccess: () => {
-      toast.success("Workspace updated successfully");
+    queryKey: ["workspaces"],
+  });
+}
+
+export function useGetWorkspace(workspaceId: string) {
+  return useQuery({
+    queryFn: () => {
+      return axios.get(`${BACKEND_URL}/workspace/${workspaceId}`, {
+        withCredentials: true,
+      });
     },
-    onError: (err) => {
-      if (err instanceof AxiosError) {
-        toast.error(err.response?.data.msg);
-      } else {
-        toast.error("Workspace updation unsuccessfully");
-      }
-    },
+    queryKey: ["workspace", workspaceId],
+    enabled: Boolean(workspaceId),
   });
 }

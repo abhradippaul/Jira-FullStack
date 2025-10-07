@@ -14,31 +14,29 @@ import { Input } from "@/components/ui/input";
 import { workspaceFormSchema } from "@/lib/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DottedSeparator from "@/components/ui/dotted-separator";
-import { useCreateWorkspace } from "@/custom-hooks/workspace/use-workspace";
+import { useUpdateWorkspace } from "@/custom-hooks/workspace/use-workspace";
 import axios from "axios";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ImageIcon } from "lucide-react";
-import { useRouter } from "@tanstack/react-router";
+import type { GetSingleWorkspace } from "@/lib/types";
+import { toast } from "sonner";
 
-interface CreateWorkspaceFormProps {
+interface EditWorkspaceFormProps {
+  workspace: GetSingleWorkspace | null | undefined;
+}
+interface CreateWorkspaceFormProps extends EditWorkspaceFormProps {
   onCancel?: () => void;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
+function EditWorkspaceForm({ onCancel, workspace }: CreateWorkspaceFormProps) {
   const [isImageUploading, setIsImageUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState(workspace?.image_url);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-  const onSuccess = (workspace_id: string) => {
-    router.navigate({
-      to: `/workspaces/${workspace_id}`,
-    });
-  };
 
-  const createWorkspace = useCreateWorkspace(onSuccess);
+  const createWorkspace = useUpdateWorkspace(workspace?.workspace_id || "");
   const form = useForm<z.infer<typeof workspaceFormSchema>>({
     resolver: zodResolver(workspaceFormSchema),
     defaultValues: {
@@ -46,6 +44,10 @@ function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
       image_url: "",
     },
   });
+  useEffect(() => {
+    form.setValue("name", workspace?.name || "");
+    form.setValue("image_url", workspace?.image_url || "");
+  }, [workspace]);
 
   const fileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.item(0);
@@ -80,20 +82,25 @@ function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
   };
 
   function onSubmit(values: z.infer<typeof workspaceFormSchema>) {
-    createWorkspace.mutate(values);
-    form.reset();
-    setImageUrl("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    const name = form.getValues("name");
+    const image_url = form.getValues("image_url");
+    console.log(image_url);
+    console.log(workspace?.image_url);
+    if (name != workspace?.name && image_url != workspace?.image_url) {
+      console.log("checking");
+      createWorkspace.mutate(values);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } else {
+      toast.error("Field values are not changed");
     }
   }
 
   return (
     <Card className="size-full border-none shadow-none">
       <CardHeader className="flex p-7">
-        <CardTitle className="text-xl font-bold">
-          Create a new workspace
-        </CardTitle>
+        <CardTitle className="text-xl font-bold">Edit a workspace</CardTitle>
       </CardHeader>
       <div className="px-7">
         <DottedSeparator />
@@ -110,7 +117,7 @@ function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
                     <FormLabel>Worksapce Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter workspace name"
+                        placeholder="Edit workspace name"
                         {...field}
                         disabled={createWorkspace.isPending}
                       />
@@ -150,11 +157,7 @@ function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
                   />
                   <Button
                     type="button"
-                    disabled={
-                      isImageUploading ||
-                      createWorkspace.isPending ||
-                      Boolean(imageUrl)
-                    }
+                    disabled={isImageUploading || createWorkspace.isPending}
                     variant="teritary"
                     size="xs"
                     className="w-fit mt-2"
@@ -184,7 +187,7 @@ function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
                 variant="primary"
                 disabled={createWorkspace.isPending || isImageUploading}
               >
-                Create Workspace
+                Update Workspace
               </Button>
             </div>
           </form>
@@ -194,4 +197,4 @@ function CreateWorkspaceForm({ onCancel }: CreateWorkspaceFormProps) {
   );
 }
 
-export default CreateWorkspaceForm;
+export default EditWorkspaceForm;

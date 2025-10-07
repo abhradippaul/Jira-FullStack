@@ -8,6 +8,7 @@ import {
 import { validate } from "../middlewares/schema-validation.middleware.js";
 import { userInsertSchema } from "../db/schema.js";
 import { userSigninSchema } from "../utils/types.js";
+import { verifyUserAuth } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -17,6 +18,6 @@ router.route("/signin").post(validate(userSigninSchema), signinUser);
 
 router.route("/signout").delete(signoutUser);
 
-router.route("/current-user").get(getCurrentUser);
+router.route("/current-user").get(verifyUserAuth, getCurrentUser);
 
 export { router };
