@@ -109,6 +109,7 @@ export async function updateWorkspace(req: Request, res: Response) {
       })
       .from(users)
       .innerJoin(workspaceMembers, eq(workspaceMembers.user_id, user_id))
+      .innerJoin(workspaces, eq(workspaces.id, workspaceId))
       .where(
         and(
           eq(users.id, user_id),
@@ -186,14 +187,21 @@ export async function deleteWorkspace(req: Request, res: Response) {
       });
     }
 
-    const isUserExist = await db
+    const isUserAndWorkspaceExist = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.id, user_id));
+      .innerJoin(workspaceMembers, eq(workspaceMembers.user_id, user_id))
+      .where(
+        and(
+          eq(users.id, user_id),
+          eq(workspaceMembers.workspace_id, workspaceId),
+          eq(workspaceMembers.role, "admin")
+        )
+      );
 
-    if (!isUserExist.length) {
+    if (!isUserAndWorkspaceExist.length) {
       return res.status(404).json({
-        msg: "User not found",
+        msg: "User or workspace not found",
       });
     }
 
@@ -287,6 +295,7 @@ export async function getSingleWorkspace(req: Request, res: Response) {
         workspace_id: workspaces.id,
         name: workspaces.name,
         image_url: workspaces.image_url,
+        invite_code: workspaces.invite_code,
       })
       .from(users)
       .innerJoin(workspaceMembers, eq(workspaceMembers.user_id, user_id))
@@ -387,6 +396,83 @@ export async function getWorkspaceS3ImageUrl(req: Request, res: Response) {
   }
 }
 
+export async function getWorkspaceForJoin(req: Request, res: Response) {
+  try {
+    const { user_id } = req.body;
+    const { workspaceId, inviteCode } = req.params;
+
+    if (!user_id) {
+      return res.status(404).json({
+        msg: "User id not found",
+      });
+    }
+
+    if (!workspaceId || !inviteCode) {
+      return res.status(400).json({
+        msg: "Missing workspace id or invite code",
+      });
+    }
+
+    const isUserExist = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, user_id));
+
+    if (!isUserExist.length) {
+      return res.status(404).json({
+        msg: "User does not exist",
+      });
+    }
+
+    const isWorkspaceMemberAlreadyAdded = await db
+      .select()
+      .from(workspaceMembers)
+      .where(
+        and(
+          eq(workspaceMembers.user_id, user_id),
+          eq(workspaceMembers.workspace_id, workspaceId)
+        )
+      );
+
+    if (isWorkspaceMemberAlreadyAdded.length) {
+      return res.status(200).json({
+        alreadyMember: true,
+        msg: "Member already exists",
+      });
+    }
+
+    const isWorkspaceAndInviteCodeValid = await db
+      .select({
+        id: workspaces.id,
+        name: workspaces.name,
+      })
+      .from(workspaces)
+      .where(
+        and(
+          eq(workspaces.id, workspaceId),
+          eq(workspaces.invite_code, inviteCode)
+        )
+      );
+
+    if (!isWorkspaceAndInviteCodeValid.length) {
+      return res.status(200).json({
+        msg: "Workspace is not found",
+      });
+    }
+
+    return res.status(201).json({
+      workspace: isWorkspaceAndInviteCodeValid[0],
+      msg: "Member joined to workspace successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      msg: "Some thing went wrong",
+      error: err,
+    });
+  }
+}
+
 export async function joinInWorkspace(req: Request, res: Response) {
   try {
     const { user_id, invite_code } = req.body;
@@ -417,6 +503,17 @@ export async function joinInWorkspace(req: Request, res: Response) {
     if (!isWorkspaceAndInviteCodeValid.length) {
       return res.status(404).json({
         msg: "Workspace is not found",
+      });
+    }
+
+    const isUserExist = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, user_id));
+
+    if (!isUserExist.length) {
+      return res.status(404).json({
+        msg: "User does not exist",
       });
     }
 
@@ -476,15 +573,19 @@ export async function resetInviteCodeForWorkspace(req: Request, res: Response) {
       });
     }
 
-    const isWorkspaceAndUserValid = await db
-      .select()
-      .from(workspaceMembers)
-      .innerJoin(workspaces, eq(workspaceMembers.workspace_id, workspaces.id))
+    const isUserAndWorkspaceExist = await db
+      .select({ id: users.id })
+      .from(users)
+      .innerJoin(workspaceMembers, eq(workspaceMembers.user_id, user_id))
       .where(
-        and(eq(workspaces.user_id, user_id), eq(workspaceMembers.role, "admin"))
+        and(
+          eq(users.id, user_id),
+          eq(workspaceMembers.workspace_id, workspaceId),
+          eq(workspaceMembers.role, "admin")
+        )
       );
 
-    if (!isWorkspaceAndUserValid.length) {
+    if (!isUserAndWorkspaceExist.length) {
       return res.status(404).json({
         msg: "Workspace is not found",
       });

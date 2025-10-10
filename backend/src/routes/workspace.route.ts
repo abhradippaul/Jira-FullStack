@@ -3,6 +3,7 @@ import {
   createWorkspace,
   deleteWorkspace,
   getSingleWorkspace,
+  getWorkspaceForJoin,
   getWorkspaces,
   getWorkspaceS3ImageUrl,
   joinInWorkspace,
@@ -29,6 +30,10 @@ router
 router
   .route("/join-workspace/:workspaceId")
   .post(verifyUserAuth, joinInWorkspace);
+
+router
+  .route("/get-workspace-for-invite/:workspaceId/:inviteCode")
+  .get(verifyUserAuth, getWorkspaceForJoin);
 
 router
   .route("/reset-invitecode/:workspaceId")

@@ -18,6 +18,9 @@ import { Route as dashboardWorkspacesCreateIndexRouteImport } from './routes/(da
 import { Route as dashboardWorkspacesWorkspaceIdIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/index'
 import { Route as authAuthSignUpIndexRouteImport } from './routes/(auth)/auth/sign-up/index'
 import { Route as authAuthSignInIndexRouteImport } from './routes/(auth)/auth/sign-in/index'
+import { Route as dashboardWorkspacesWorkspaceIdSettingsIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/settings/index'
+import { Route as dashboardWorkspacesWorkspaceIdMembersIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/members/index'
+import { Route as dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/join/$inviteCode/index'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -65,6 +68,24 @@ const authAuthSignInIndexRoute = authAuthSignInIndexRouteImport.update({
   path: '/sign-in/',
   getParentRoute: () => authAuthRouteRoute,
 } as any)
+const dashboardWorkspacesWorkspaceIdSettingsIndexRoute =
+  dashboardWorkspacesWorkspaceIdSettingsIndexRouteImport.update({
+    id: '/workspaces/$workspaceId/settings/',
+    path: '/workspaces/$workspaceId/settings/',
+    getParentRoute: () => dashboardRouteRoute,
+  } as any)
+const dashboardWorkspacesWorkspaceIdMembersIndexRoute =
+  dashboardWorkspacesWorkspaceIdMembersIndexRouteImport.update({
+    id: '/workspaces/$workspaceId/members/',
+    path: '/workspaces/$workspaceId/members/',
+    getParentRoute: () => dashboardRouteRoute,
+  } as any)
+const dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute =
+  dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRouteImport.update({
+    id: '/workspaces/$workspaceId/join/$inviteCode/',
+    path: '/workspaces/$workspaceId/join/$inviteCode/',
+    getParentRoute: () => dashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof dashboardIndexRoute
@@ -75,6 +96,9 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof authAuthSignUpIndexRoute
   '/workspaces/$workspaceId': typeof dashboardWorkspacesWorkspaceIdIndexRoute
   '/workspaces/create': typeof dashboardWorkspacesCreateIndexRoute
+  '/workspaces/$workspaceId/members': typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
+  '/workspaces/$workspaceId/settings': typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
+  '/workspaces/$workspaceId/join/$inviteCode': typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof AboutRoute
@@ -85,6 +109,9 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof authAuthSignUpIndexRoute
   '/workspaces/$workspaceId': typeof dashboardWorkspacesWorkspaceIdIndexRoute
   '/workspaces/create': typeof dashboardWorkspacesCreateIndexRoute
+  '/workspaces/$workspaceId/members': typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
+  '/workspaces/$workspaceId/settings': typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
+  '/workspaces/$workspaceId/join/$inviteCode': typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +124,9 @@ export interface FileRoutesById {
   '/(auth)/auth/sign-up/': typeof authAuthSignUpIndexRoute
   '/(dashboard)/workspaces/$workspaceId/': typeof dashboardWorkspacesWorkspaceIdIndexRoute
   '/(dashboard)/workspaces/create/': typeof dashboardWorkspacesCreateIndexRoute
+  '/(dashboard)/workspaces/$workspaceId/members/': typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
+  '/(dashboard)/workspaces/$workspaceId/settings/': typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
+  '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/': typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,6 +139,9 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/workspaces/$workspaceId'
     | '/workspaces/create'
+    | '/workspaces/$workspaceId/members'
+    | '/workspaces/$workspaceId/settings'
+    | '/workspaces/$workspaceId/join/$inviteCode'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/about'
@@ -119,6 +152,9 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/workspaces/$workspaceId'
     | '/workspaces/create'
+    | '/workspaces/$workspaceId/members'
+    | '/workspaces/$workspaceId/settings'
+    | '/workspaces/$workspaceId/join/$inviteCode'
   id:
     | '__root__'
     | '/(dashboard)'
@@ -130,6 +166,9 @@ export interface FileRouteTypes {
     | '/(auth)/auth/sign-up/'
     | '/(dashboard)/workspaces/$workspaceId/'
     | '/(dashboard)/workspaces/create/'
+    | '/(dashboard)/workspaces/$workspaceId/members/'
+    | '/(dashboard)/workspaces/$workspaceId/settings/'
+    | '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,6 +243,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authAuthSignInIndexRouteImport
       parentRoute: typeof authAuthRouteRoute
     }
+    '/(dashboard)/workspaces/$workspaceId/settings/': {
+      id: '/(dashboard)/workspaces/$workspaceId/settings/'
+      path: '/workspaces/$workspaceId/settings'
+      fullPath: '/workspaces/$workspaceId/settings'
+      preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdSettingsIndexRouteImport
+      parentRoute: typeof dashboardRouteRoute
+    }
+    '/(dashboard)/workspaces/$workspaceId/members/': {
+      id: '/(dashboard)/workspaces/$workspaceId/members/'
+      path: '/workspaces/$workspaceId/members'
+      fullPath: '/workspaces/$workspaceId/members'
+      preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdMembersIndexRouteImport
+      parentRoute: typeof dashboardRouteRoute
+    }
+    '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/': {
+      id: '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/'
+      path: '/workspaces/$workspaceId/join/$inviteCode'
+      fullPath: '/workspaces/$workspaceId/join/$inviteCode'
+      preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRouteImport
+      parentRoute: typeof dashboardRouteRoute
+    }
   }
 }
 
@@ -211,6 +271,9 @@ interface dashboardRouteRouteChildren {
   dashboardIndexRoute: typeof dashboardIndexRoute
   dashboardWorkspacesWorkspaceIdIndexRoute: typeof dashboardWorkspacesWorkspaceIdIndexRoute
   dashboardWorkspacesCreateIndexRoute: typeof dashboardWorkspacesCreateIndexRoute
+  dashboardWorkspacesWorkspaceIdMembersIndexRoute: typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
+  dashboardWorkspacesWorkspaceIdSettingsIndexRoute: typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
+  dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute: typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
 }
 
 const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
@@ -218,6 +281,12 @@ const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
   dashboardWorkspacesWorkspaceIdIndexRoute:
     dashboardWorkspacesWorkspaceIdIndexRoute,
   dashboardWorkspacesCreateIndexRoute: dashboardWorkspacesCreateIndexRoute,
+  dashboardWorkspacesWorkspaceIdMembersIndexRoute:
+    dashboardWorkspacesWorkspaceIdMembersIndexRoute,
+  dashboardWorkspacesWorkspaceIdSettingsIndexRoute:
+    dashboardWorkspacesWorkspaceIdSettingsIndexRoute,
+  dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute:
+    dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute,
 }
 
 const dashboardRouteRouteWithChildren = dashboardRouteRoute._addFileChildren(

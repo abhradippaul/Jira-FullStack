@@ -32,15 +32,17 @@ export function useCreateWorkspace(onSuccess: (res: string) => void) {
   });
 }
 
-export function useDeleteWorkspace() {
+export function useDeleteWorkspace(workspaceId: string) {
   return useMutation({
-    mutationFn: (workspaceId: string) => {
+    mutationFn: () => {
       return axios.delete(`${BACKEND_URL}/workspace/${workspaceId}`, {
         withCredentials: true,
       });
     },
     onSuccess: () => {
       toast.success("Workspace deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -93,5 +95,73 @@ export function useGetWorkspace(workspaceId: string) {
     },
     queryKey: ["workspace", workspaceId],
     enabled: Boolean(workspaceId),
+  });
+}
+
+export function useResetInviteCodeWorkspace(workspaceId: string) {
+  return useMutation({
+    mutationFn: () => {
+      return axios.post(
+        `${BACKEND_URL}/workspace/reset-invitecode/${workspaceId}`,
+        "",
+        {
+          withCredentials: true,
+        }
+      );
+    },
+    onSuccess: () => {
+      toast.success("Workspace invite code updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data.msg);
+      } else {
+        toast.error("Workspace invite code update unsuccessful");
+      }
+    },
+  });
+}
+
+export function useJoinWorkspace(workspaceId: string, onSuccess: () => void) {
+  return useMutation({
+    mutationFn: (invite_code: string) => {
+      return axios.post(
+        `${BACKEND_URL}/workspace/join-workspace/${workspaceId}`,
+        {
+          invite_code,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+    },
+    onSuccess: () => {
+      toast.success("Workspace joined successfully");
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      onSuccess();
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data.msg);
+      } else {
+        toast.error("Workspace joined failed");
+      }
+    },
+  });
+}
+
+export function useGetJoinWorkspace(workspaceId: string, invite_code: string) {
+  return useQuery({
+    queryFn: () => {
+      return axios.get(
+        `${BACKEND_URL}/workspace/get-workspace-for-invite/${workspaceId}/${invite_code}`,
+        {
+          withCredentials: true,
+        }
+      );
+    },
+    queryKey: ["workspace-invite", workspaceId],
+    retry: 1,
   });
 }

@@ -34,13 +34,19 @@ const routes = [
   },
 ];
 function Navigation() {
+  const workspaceId = location.pathname.split("/")?.[2];
   return (
     <ul className="flex flex-col">
       {routes.map(({ href, activeIcon, icon, label }) => {
-        const isActive = false;
+        const fullUrl = `/workspaces/${workspaceId}${href}`;
+        // console.log(location.pathname.split("/")?.[3]);
+        const isActive =
+          location.pathname.split("/")?.[3] === href.replace("/", "")
+            ? true
+            : location.pathname.split("/")?.[3] === undefined;
         const Icon = isActive ? activeIcon : icon;
         return (
-          <Link key={href} to={href}>
+          <Link key={href} to={fullUrl}>
             <div
               className={cn(
                 "flex items-center gap-2.5 p-2.5 rounded-md font-medium hover:text-primary transition text-neutral-500",
