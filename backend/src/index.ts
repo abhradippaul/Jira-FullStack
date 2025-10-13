@@ -9,6 +9,7 @@ import { sendMessage } from "./utils/aws/sqs.js";
 import { router as authRouter } from "./routes/auth.route.js";
 import { router as workspaceRouter } from "./routes/workspace.route.js";
 import { router as workspaceMemberRouter } from "./routes/workspace-member.route.js";
+import { router as projectRouter } from "./routes/project.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -25,6 +26,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/workspace", workspaceRouter);
 app.use("/api/v1/workspace-members", workspaceMemberRouter);
+app.use("/api/v1/project", projectRouter);
 
 app.get("/", async (req, res) => {
   res.json({ msg: "hello" });

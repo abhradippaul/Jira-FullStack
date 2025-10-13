@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetWorkspaceMembers } from "@/custom-hooks/member/use-workspaceMember";
+import {
+  useGetWorkspaceMembers,
+  useRemoveMemberFromWorkspace,
+  useUpdateWorkspaceMemberRole,
+} from "@/custom-hooks/member/use-workspaceMember";
 import type { GetWorkspaceMembers } from "@/lib/types";
 import { Link, useParams } from "@tanstack/react-router";
 import { ArrowLeftIcon, MoreVerticalIcon } from "lucide-react";
@@ -22,6 +26,8 @@ function MemberList() {
     workspaceId || ""
   );
   const { data: userData } = useGetUser();
+  const updateMemberRole = useUpdateWorkspaceMemberRole(workspaceId || "");
+  const deleteMember = useRemoveMemberFromWorkspace(workspaceId || "");
 
   const workspaceMembers = data?.data as GetWorkspaceMembers | null | undefined;
   console.log(userData);
@@ -46,7 +52,7 @@ function MemberList() {
       </div>
       <CardContent className="p-7">
         {workspaceMembers?.workspaceMembers?.map(
-          ({ id, name, role }, index) => (
+          ({ id, name, role, email }, index) => (
             <Fragment key={id}>
               <div className="flex items-center gap-2">
                 <MemberAvatar
@@ -56,7 +62,7 @@ function MemberList() {
                 />
                 <div className="flex flex-col">
                   <p className="text-sm font-medium">{name}</p>
-                  <p className="text-xs text-muted-foreground">email</p>
+                  <p className="text-xs text-muted-foreground">{email}</p>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -67,9 +73,20 @@ function MemberList() {
                   <DropdownMenuContent side="bottom" align="end">
                     {role === "member" && (
                       <DropdownMenuItem
-                        className="font-medium"
-                        onClick={() => {}}
-                        disabled={userData?.data.user.id === id}
+                        className="font-medium cursor-pointer"
+                        onClick={() => {
+                          if (id) {
+                            updateMemberRole.mutate({
+                              memberId: id,
+                              role: "admin",
+                            });
+                          }
+                        }}
+                        disabled={
+                          userData?.data.user.id === id ||
+                          updateMemberRole.isPending ||
+                          deleteMember.isPending
+                        }
                       >
                         Set as Administrator
                       </DropdownMenuItem>
@@ -77,27 +94,44 @@ function MemberList() {
 
                     {role === "admin" && (
                       <DropdownMenuItem
-                        className="font-medium"
-                        onClick={() => {}}
-                        disabled={userData?.data.user.id === id}
+                        className="font-medium cursor-pointer"
+                        onClick={() => {
+                          if (id) {
+                            updateMemberRole.mutate({
+                              memberId: id,
+                              role: "member",
+                            });
+                          }
+                        }}
+                        disabled={
+                          userData?.data.user.id === id ||
+                          updateMemberRole.isPending ||
+                          deleteMember.isPending
+                        }
                       >
                         Set as Member
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
-                      className="font-medium text-amber-700"
-                      onClick={() => {}}
-                      disabled={false}
+                      className="font-medium text-amber-700 cursor-pointer"
+                      onClick={() => {
+                        deleteMember.mutate(id);
+                      }}
+                      disabled={
+                        userData?.data.user.id === id ||
+                        updateMemberRole.isPending ||
+                        deleteMember.isPending
+                      }
                     >
                       Remove {name}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {index <
-                  Number(workspaceMembers.workspaceMembers?.length) - 1 && (
-                  <Separator className="my-2.5" />
-                )}
               </div>
+              {index <
+                Number(workspaceMembers.workspaceMembers?.length) - 1 && (
+                <Separator className="my-2.5" />
+              )}
             </Fragment>
           )
         )}

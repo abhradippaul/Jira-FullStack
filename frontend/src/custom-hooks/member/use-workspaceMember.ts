@@ -17,12 +17,9 @@ export function useGetWorkspaceMembers(workspaceId: string) {
   });
 }
 
-export function useUpdateWorkspaceMemberRole(
-  workspaceId: string,
-  memberId: string
-) {
+export function useUpdateWorkspaceMemberRole(workspaceId: string) {
   return useMutation({
-    mutationFn: (role: string) => {
+    mutationFn: ({ role, memberId }: { role: string; memberId: string }) => {
       return axios.patch(
         `${BACKEND_URL}/workspace-members/${workspaceId}/${memberId}`,
         { role },

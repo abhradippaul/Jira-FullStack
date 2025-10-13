@@ -35,6 +35,19 @@ export interface GetWorkspaceMembers {
         id: string;
         name: string;
         role: string;
+        email: string;
+      }[]
+    | null
+    | undefined;
+  msg: string;
+}
+
+export interface GetProjects {
+  projects:
+    | {
+        id: string;
+        name: string;
+        image_url: string | null | undefined;
       }[]
     | null
     | undefined;

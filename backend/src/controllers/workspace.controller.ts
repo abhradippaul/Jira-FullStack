@@ -245,9 +245,10 @@ export async function getWorkspaces(req: Request, res: Response) {
         name: workspaces.name,
         image_url: workspaces.image_url,
       })
-      .from(workspaceMembers)
+      .from(users)
+      .innerJoin(workspaceMembers, eq(workspaceMembers.user_id, user_id))
       .innerJoin(workspaces, eq(workspaceMembers.workspace_id, workspaces.id))
-      .where(eq(workspaces.user_id, user_id))
+      .where(eq(users.id, user_id))
       .orderBy(desc(workspaceMembers.created_at));
 
     // const result = await Promise.all(
