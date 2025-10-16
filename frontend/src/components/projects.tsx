@@ -1,11 +1,17 @@
 import { useGetProjects } from "@/custom-hooks/project/use-project";
+import ProjectAvatar from "@/features/project/components/project-avatar";
 import type { GetProjects } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Link, useParams, useRouter } from "@tanstack/react-router";
+import {
+  Link,
+  useLocation,
+  useParams,
+  useRouter,
+} from "@tanstack/react-router";
 import { RiAddCircleFill } from "react-icons/ri";
 
 function Projects() {
-  const pathname = "";
+  const { pathname } = useLocation();
   const { workspaceId } = useParams({ strict: false });
   const { data, isLoading, isError } = useGetProjects(workspaceId || "");
   const router = useRouter();
@@ -24,7 +30,7 @@ function Projects() {
   };
 
   return (
-    <div className="flex flex-col gap-y-2 my-4">
+    <div className="flex flex-col gap-y-1 my-4">
       <div className="flex items-center justify-between">
         <p className="text-xs uppercase text-neutral-500">projects</p>
         <RiAddCircleFill
@@ -32,18 +38,19 @@ function Projects() {
           className="size-5 text-neutral-500 cursor-pointer hover:opacity-75 transition"
         />
       </div>
-      {projects?.projects?.map((project: any) => {
-        const href = `/workspaces/${workspaceId}/projects/${project.id}`;
+      {projects?.projects?.map(({ id, image_url, name }) => {
+        const href = `/workspaces/${workspaceId}/projects/${id}`;
         const isActive = pathname === href;
         return (
-          <Link to={href} key={project.id}>
+          <Link to={href} key={id}>
             <div
               className={cn(
-                "flex items-center gap-2.5 p-2.5 rounded-md hover:opacity-75 transition cursor-pointer text-neutral-500",
+                "flex items-center gap-2.5 p-2.5 rounded-md hover:opacity-75 transition cursor-pointer text-neutral-500 hover:bg-white hover:text-black",
                 isActive && "bg-white shadow-sm hover:opacity-100 text-primary"
               )}
             >
-              <span className="truncate">{project.name}</span>
+              <ProjectAvatar name={name} image={image_url} />
+              <span className="truncate">{name}</span>
             </div>
           </Link>
         );

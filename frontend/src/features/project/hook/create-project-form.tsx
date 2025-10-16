@@ -18,7 +18,7 @@ import axios from "axios";
 import { useRef, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ImageIcon } from "lucide-react";
-import { useParams } from "@tanstack/react-router";
+import { useParams, useRouter } from "@tanstack/react-router";
 import { useCreateProject } from "@/custom-hooks/project/use-project";
 
 interface CreateProjectFormProps {
@@ -32,8 +32,15 @@ function CreateProjectForm({ onCancel }: CreateProjectFormProps) {
   const [imageUrl, setImageUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { workspaceId } = useParams({ strict: false });
+  const router = useRouter();
 
-  const createProject = useCreateProject(workspaceId || "");
+  const onSuccess = (projectId: string) => {
+    router.navigate({
+      to: `/workspaces/${workspaceId}/projects/${projectId}`,
+    });
+  };
+
+  const createProject = useCreateProject(workspaceId || "", onSuccess);
   const form = useForm<z.infer<typeof workspaceFormSchema>>({
     resolver: zodResolver(workspaceFormSchema),
     defaultValues: {
@@ -44,11 +51,11 @@ function CreateProjectForm({ onCancel }: CreateProjectFormProps) {
 
   const fileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.item(0);
-    if (file) {
+    if (file && workspaceId) {
       const mime = file.type.split("/")[1];
       const data = await axios.post(
         `${BACKEND_URL}/project/s3-put-presigned-url`,
-        { mime },
+        { mime, workspaceId },
         {
           withCredentials: true,
         }

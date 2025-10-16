@@ -11,7 +11,10 @@ interface TypeCreateProject {
   image_url: string | null | undefined;
 }
 
-export function useCreateProject(workspaceId: string) {
+export function useCreateProject(
+  workspaceId: string,
+  onSuccess: (projectId: string) => void
+) {
   return useMutation({
     mutationFn: (body: TypeCreateProject) => {
       return axios.post(`${BACKEND_URL}/project/${workspaceId}`, body, {
@@ -21,7 +24,10 @@ export function useCreateProject(workspaceId: string) {
     onSuccess: (res) => {
       console.log(res.data);
       toast.success("Project created successfully");
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", workspaceId] });
+      if (res.data.projectId) {
+        onSuccess(res.data.projectId);
+      }
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -45,7 +51,7 @@ export function useDeleteProject(workspaceId: string, projectId: string) {
     },
     onSuccess: () => {
       toast.success("Project deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", workspaceId] });
       queryClient.invalidateQueries({ queryKey: ["project", projectId] });
     },
     onError: (err) => {
@@ -86,11 +92,11 @@ export function useUpdateProject(workspaceId: string, projectId: string) {
 export function useGetProjects(workspaceId: string) {
   return useQuery({
     queryFn: () => {
-      return axios.get(`${BACKEND_URL}/project/${workspaceId}`, {
+      return axios.get(`${BACKEND_URL}/project/${workspaceId}/all`, {
         withCredentials: true,
       });
     },
-    queryKey: ["projects"],
+    queryKey: ["projects", workspaceId],
   });
 }
 
@@ -104,71 +110,3 @@ export function useGetProject(workspaceId: string, projectId: string) {
     queryKey: ["project", projectId],
   });
 }
-
-// export function useResetInviteCodeWorkspace(workspaceId: string) {
-//   return useMutation({
-//     mutationFn: () => {
-//       return axios.post(
-//         `${BACKEND_URL}/workspace/reset-invitecode/${workspaceId}`,
-//         "",
-//         {
-//           withCredentials: true,
-//         }
-//       );
-//     },
-//     onSuccess: () => {
-//       toast.success("Workspace invite code updated successfully");
-//       queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
-//     },
-//     onError: (err) => {
-//       if (err instanceof AxiosError) {
-//         toast.error(err.response?.data.msg);
-//       } else {
-//         toast.error("Workspace invite code update unsuccessful");
-//       }
-//     },
-//   });
-// }
-
-// export function useJoinWorkspace(workspaceId: string, onSuccess: () => void) {
-//   return useMutation({
-//     mutationFn: (invite_code: string) => {
-//       return axios.post(
-//         `${BACKEND_URL}/workspace/join-workspace/${workspaceId}`,
-//         {
-//           invite_code,
-//         },
-//         {
-//           withCredentials: true,
-//         }
-//       );
-//     },
-//     onSuccess: () => {
-//       toast.success("Workspace joined successfully");
-//       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-//       onSuccess();
-//     },
-//     onError: (err) => {
-//       if (err instanceof AxiosError) {
-//         toast.error(err.response?.data.msg);
-//       } else {
-//         toast.error("Workspace joined failed");
-//       }
-//     },
-//   });
-// }
-
-// export function useGetJoinWorkspace(workspaceId: string, invite_code: string) {
-//   return useQuery({
-//     queryFn: () => {
-//       return axios.get(
-//         `${BACKEND_URL}/workspace/get-workspace-for-invite/${workspaceId}/${invite_code}`,
-//         {
-//           withCredentials: true,
-//         }
-//       );
-//     },
-//     queryKey: ["workspace-invite", workspaceId],
-//     retry: 1,
-//   });
-// }

@@ -20,7 +20,9 @@ import { Route as authAuthSignUpIndexRouteImport } from './routes/(auth)/auth/si
 import { Route as authAuthSignInIndexRouteImport } from './routes/(auth)/auth/sign-in/index'
 import { Route as dashboardWorkspacesWorkspaceIdSettingsIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/settings/index'
 import { Route as dashboardWorkspacesWorkspaceIdMembersIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/members/index'
+import { Route as dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/projects/$projectId/index'
 import { Route as dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/join/$inviteCode/index'
+import { Route as dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRouteImport } from './routes/(dashboard)/workspaces/$workspaceId/projects/$projectId/settings/index'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -80,12 +82,26 @@ const dashboardWorkspacesWorkspaceIdMembersIndexRoute =
     path: '/workspaces/$workspaceId/members/',
     getParentRoute: () => dashboardRouteRoute,
   } as any)
+const dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute =
+  dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRouteImport.update({
+    id: '/workspaces/$workspaceId/projects/$projectId/',
+    path: '/workspaces/$workspaceId/projects/$projectId/',
+    getParentRoute: () => dashboardRouteRoute,
+  } as any)
 const dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute =
   dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRouteImport.update({
     id: '/workspaces/$workspaceId/join/$inviteCode/',
     path: '/workspaces/$workspaceId/join/$inviteCode/',
     getParentRoute: () => dashboardRouteRoute,
   } as any)
+const dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute =
+  dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRouteImport.update(
+    {
+      id: '/workspaces/$workspaceId/projects/$projectId/settings/',
+      path: '/workspaces/$workspaceId/projects/$projectId/settings/',
+      getParentRoute: () => dashboardRouteRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof dashboardIndexRoute
@@ -99,6 +115,8 @@ export interface FileRoutesByFullPath {
   '/workspaces/$workspaceId/members': typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
   '/workspaces/$workspaceId/settings': typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
   '/workspaces/$workspaceId/join/$inviteCode': typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
+  '/workspaces/$workspaceId/projects/$projectId': typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute
+  '/workspaces/$workspaceId/projects/$projectId/settings': typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof AboutRoute
@@ -112,6 +130,8 @@ export interface FileRoutesByTo {
   '/workspaces/$workspaceId/members': typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
   '/workspaces/$workspaceId/settings': typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
   '/workspaces/$workspaceId/join/$inviteCode': typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
+  '/workspaces/$workspaceId/projects/$projectId': typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute
+  '/workspaces/$workspaceId/projects/$projectId/settings': typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -127,6 +147,8 @@ export interface FileRoutesById {
   '/(dashboard)/workspaces/$workspaceId/members/': typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
   '/(dashboard)/workspaces/$workspaceId/settings/': typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
   '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/': typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
+  '/(dashboard)/workspaces/$workspaceId/projects/$projectId/': typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute
+  '/(dashboard)/workspaces/$workspaceId/projects/$projectId/settings/': typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -142,6 +164,8 @@ export interface FileRouteTypes {
     | '/workspaces/$workspaceId/members'
     | '/workspaces/$workspaceId/settings'
     | '/workspaces/$workspaceId/join/$inviteCode'
+    | '/workspaces/$workspaceId/projects/$projectId'
+    | '/workspaces/$workspaceId/projects/$projectId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/about'
@@ -155,6 +179,8 @@ export interface FileRouteTypes {
     | '/workspaces/$workspaceId/members'
     | '/workspaces/$workspaceId/settings'
     | '/workspaces/$workspaceId/join/$inviteCode'
+    | '/workspaces/$workspaceId/projects/$projectId'
+    | '/workspaces/$workspaceId/projects/$projectId/settings'
   id:
     | '__root__'
     | '/(dashboard)'
@@ -169,6 +195,8 @@ export interface FileRouteTypes {
     | '/(dashboard)/workspaces/$workspaceId/members/'
     | '/(dashboard)/workspaces/$workspaceId/settings/'
     | '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/'
+    | '/(dashboard)/workspaces/$workspaceId/projects/$projectId/'
+    | '/(dashboard)/workspaces/$workspaceId/projects/$projectId/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,11 +285,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdMembersIndexRouteImport
       parentRoute: typeof dashboardRouteRoute
     }
+    '/(dashboard)/workspaces/$workspaceId/projects/$projectId/': {
+      id: '/(dashboard)/workspaces/$workspaceId/projects/$projectId/'
+      path: '/workspaces/$workspaceId/projects/$projectId'
+      fullPath: '/workspaces/$workspaceId/projects/$projectId'
+      preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRouteImport
+      parentRoute: typeof dashboardRouteRoute
+    }
     '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/': {
       id: '/(dashboard)/workspaces/$workspaceId/join/$inviteCode/'
       path: '/workspaces/$workspaceId/join/$inviteCode'
       fullPath: '/workspaces/$workspaceId/join/$inviteCode'
       preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRouteImport
+      parentRoute: typeof dashboardRouteRoute
+    }
+    '/(dashboard)/workspaces/$workspaceId/projects/$projectId/settings/': {
+      id: '/(dashboard)/workspaces/$workspaceId/projects/$projectId/settings/'
+      path: '/workspaces/$workspaceId/projects/$projectId/settings'
+      fullPath: '/workspaces/$workspaceId/projects/$projectId/settings'
+      preLoaderRoute: typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRouteImport
       parentRoute: typeof dashboardRouteRoute
     }
   }
@@ -274,6 +316,8 @@ interface dashboardRouteRouteChildren {
   dashboardWorkspacesWorkspaceIdMembersIndexRoute: typeof dashboardWorkspacesWorkspaceIdMembersIndexRoute
   dashboardWorkspacesWorkspaceIdSettingsIndexRoute: typeof dashboardWorkspacesWorkspaceIdSettingsIndexRoute
   dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute: typeof dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute
+  dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute: typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute
+  dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute: typeof dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute
 }
 
 const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
@@ -287,6 +331,10 @@ const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
     dashboardWorkspacesWorkspaceIdSettingsIndexRoute,
   dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute:
     dashboardWorkspacesWorkspaceIdJoinInviteCodeIndexRoute,
+  dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute:
+    dashboardWorkspacesWorkspaceIdProjectsProjectIdIndexRoute,
+  dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute:
+    dashboardWorkspacesWorkspaceIdProjectsProjectIdSettingsIndexRoute,
 }
 
 const dashboardRouteRouteWithChildren = dashboardRouteRoute._addFileChildren(

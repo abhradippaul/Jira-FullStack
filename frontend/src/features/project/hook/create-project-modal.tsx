@@ -11,7 +11,6 @@ function UseCreateProjectModal() {
   >;
   const modal = searchParams?.projectModal;
   const isOpen = modal === "open" ? true : false;
-  console.log(modal);
 
   return (
     <ResponsiveModal
