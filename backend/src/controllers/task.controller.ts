@@ -7,19 +7,19 @@ import {
   workspaces,
 } from "../db/schema.js";
 import { db } from "../db/index.js";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 
 export async function createTask(req: Request, res: Response) {
   try {
     const {
       user_id,
       name,
-      workspace_id,
-      project_id,
+      workspaceId,
+      projectId,
       descripton,
-      assignee_id,
+      assigneeId,
       status,
-      due_date,
+      dueDate,
     } = req.body;
 
     if (!user_id) {
@@ -28,13 +28,13 @@ export async function createTask(req: Request, res: Response) {
       });
     }
 
-    if (!workspace_id || !project_id) {
+    if (!workspaceId || !projectId) {
       return res.status(404).json({
         msg: "Workspace id or project id not found",
       });
     }
 
-    if (!name || !assignee_id || !status || !due_date) {
+    if (!name || !assigneeId || !status || !dueDate) {
       return res.status(404).json({
         msg: "Missing required details",
       });
@@ -44,13 +44,13 @@ export async function createTask(req: Request, res: Response) {
       .select({ id: users.id, workspace_owner_id: workspaces.user_id })
       .from(users)
       .innerJoin(workspaceMembers, eq(workspaceMembers.user_id, user_id))
-      .innerJoin(workspaces, eq(workspaces.id, workspace_id))
+      .innerJoin(workspaces, eq(workspaces.id, workspaceId))
       .innerJoin(projects, eq(projects.workspace_id, workspaces.id))
       .where(
         and(
           eq(users.id, user_id),
-          eq(workspaceMembers.workspace_id, workspace_id),
-          eq(projects.id, project_id),
+          eq(workspaceMembers.workspace_id, workspaceId),
+          eq(projects.id, projectId),
           eq(workspaceMembers.role, "admin")
         )
       );
@@ -66,7 +66,7 @@ export async function createTask(req: Request, res: Response) {
       .from(tasks)
       .where(
         and(
-          eq(tasks.workspace_id, workspace_id),
+          eq(tasks.workspace_id, workspaceId),
           // eq(tasks.project_id, project_id),
           eq(tasks.status, status)
         )
@@ -81,11 +81,11 @@ export async function createTask(req: Request, res: Response) {
 
     const isTaskCreated = await db.insert(tasks).values({
       name,
-      assignee_id,
-      due_date,
+      assignee_id: assigneeId,
+      due_date: dueDate,
       poisition: newPosition,
-      project_id,
-      workspace_id,
+      project_id: projectId,
+      workspace_id: workspaceId,
       descripton,
       status,
     });
@@ -110,7 +110,8 @@ export async function createTask(req: Request, res: Response) {
 
 export async function getTasks(req: Request, res: Response) {
   try {
-    const { workspaceId, projectId } = req.params;
+    const { workspaceId } = req.params;
+    const { status, search, assigneeId, dueDate, projectId } = req.query;
     const { user_id } = req.body;
 
     if (!user_id) {
@@ -125,16 +126,51 @@ export async function getTasks(req: Request, res: Response) {
       });
     }
 
+    const isMemberExists = await db
+      .select()
+      .from(workspaceMembers)
+      .where(
+        and(
+          eq(workspaceMembers.workspace_id, workspaceId),
+          eq(workspaceMembers.user_id, user_id)
+        )
+      );
+
+    if (!isMemberExists.length) {
+      return res.status(400).json({
+        msg: "User does not exist",
+      });
+    }
+
+    const condition = [ilike(tasks.workspace_id, `%${workspaceId}`)];
+
+    if (projectId) {
+      condition.push(ilike(tasks.project_id, `%${projectId}`));
+    }
+
+    if (status) {
+      condition.push(ilike(tasks.status, `%${status}`));
+    }
+
+    if (assigneeId) {
+      condition.push(ilike(tasks.assignee_id, `%${assigneeId}`));
+    }
+
+    if (dueDate) {
+      condition.push(ilike(tasks.due_date, `%${dueDate}`));
+    }
+
+    if (search) {
+      condition.push(ilike(tasks.name, `%${search}`));
+    }
+
     const taskList = await db
       .select()
       .from(tasks)
-      .where(
-        and(
-          eq(tasks.workspace_id, workspaceId),
-          eq(tasks.project_id, projectId)
-        )
-      )
-      .orderBy(desc(tasks.updated_at));
+      .innerJoin(projects, eq(projects.id, tasks.project_id))
+      .innerJoin(users, eq(users.id, tasks.assignee_id))
+      .where(and(...condition))
+      .orderBy(desc(tasks.created_at));
 
     return res.status(200).json({
       tasks: taskList,

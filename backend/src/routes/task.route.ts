@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.route("/").post(verifyUserAuth, createTask);
 
-router.route("/:workspaceId/:projectId/all").get(verifyUserAuth, getTasks);
+router.route("/:workspaceId/all").get(verifyUserAuth, getTasks);
 
 router
   .route("/:workspaceId/:projectId/:taskId")
